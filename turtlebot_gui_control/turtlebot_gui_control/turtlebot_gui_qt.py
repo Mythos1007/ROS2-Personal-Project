@@ -23,8 +23,8 @@ from .detect_obstacle import DetectObstacle as DetectObstacle
 from turtlebot_gui_interfaces.msg import ObstacleDistance, GoalPose
 from turtlebot_gui_interfaces.srv import StartStop
 
-EXPECTED_LOGIN_ID = ""
-EXPECTED_LOGIN_PW = ""
+EXPECTED_LOGIN_ID = "admin"
+EXPECTED_LOGIN_PW = "1234"
 
 class RclpyThread(QThread):
     def __init__(self, executor):
