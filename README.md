@@ -483,4 +483,4 @@ python3 make_maze.py -s 7 -m 15 -o custom_maze.sdf --seed 42
 ---
 
 **개발 환경**: Ubuntu 22.04, ROS2 Humble, Gazebo 11
-**테스트 완료**: 5x5 ~ 15x15 미로 환경
+**테스트 완료**: 5x5 ~ 7x7 미로 환경
