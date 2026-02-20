@@ -84,6 +84,8 @@ CLOSE_THRESH = 0.55m  # 닫힘 판정 거리
 - 네비게이션 로그 출력
 - 목표 좌표 설정 및 전송
 - 탐색 완료 시 지도 팝업 표시
+
+  
 ![IuWsR5XF](https://github.com/user-attachments/assets/1d2922fb-3f18-4141-a178-948451630262)
 
 ---
