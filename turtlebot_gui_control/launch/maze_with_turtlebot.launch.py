@@ -32,7 +32,9 @@ def generate_launch_description():
     z_pose = LaunchConfiguration('z_pose', default='0.01')
 
     # 미로 월드 파일 경로 (기본값: maze.sdf)
-    default_world_path = os.path.join(pkg_turtlebot_gui, 'maze_7x7.sdf')
+    
+    default_world_path = os.path.join(pkg_turtlebot_gui, 'maze.sdf')
+    #default_world_path = os.path.join(pkg_turtlebot_gui, 'maze_7x7.sdf')
 
     declare_world_cmd = DeclareLaunchArgument(
         'world',
