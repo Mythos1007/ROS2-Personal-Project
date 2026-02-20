@@ -157,7 +157,7 @@ ros2 run turtlebot_gui_control turtlebot_gui_qt
 
 ### 3. 자율 탐색 시작
 
-1. GUI 로그인 (ID/PW는 비워두고 진입 가능)
+1. GUI 로그인 (예시 참고)
 2. `AUTO` 버튼 클릭하여 자율 모드 전환
 3. 목표 좌표 입력 (예: `X=3.0, Y=4.0`)
 4. `NAV START` 버튼 클릭
