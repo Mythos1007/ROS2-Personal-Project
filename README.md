@@ -232,6 +232,8 @@ wall_segment = ((2.5, 2.5), (2.5, 3.5))  # 노드 중심 +0.5m
 
 ## 미로 생성
 
+https://github.com/Mythos1007/Gazebo_Maze
+
 ### 랜덤 미로 생성
 
 ```bash
