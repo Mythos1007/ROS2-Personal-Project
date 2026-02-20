@@ -84,7 +84,7 @@ CLOSE_THRESH = 0.55m  # 닫힘 판정 거리
 - 네비게이션 로그 출력
 - 목표 좌표 설정 및 전송
 - 탐색 완료 시 지도 팝업 표시
-![IuWsR5XF](https://github.com/user-attachments/assets/ad4476cb-7673-4e36-b71b-21e13b30a053)
+![IuWsR5XF](https://github.com/user-attachments/assets/1d2922fb-3f18-4141-a178-948451630262)
 
 ---
 
@@ -107,6 +107,173 @@ turtlebot_gui_control/
 ├── make_maze.py                 # 랜덤 미로 생성 스크립트 (DFS 기반)
 ├── maze.sdf                     # Gazebo 미로 월드 파일
 └── README.md                    # 본 문서
+```
+
+---
+
+## 패키지 생성 (처음부터 시작)
+
+### 새 ROS2 패키지 생성
+
+```bash
+# 워크스페이스 생성 및 이동
+mkdir -p ~/robot_ws/src
+cd ~/robot_ws/src
+
+# Python 패키지 생성
+ros2 pkg create turtlebot_gui_control \
+  --build-type ament_python \
+  --dependencies rclpy geometry_msgs nav_msgs sensor_msgs std_msgs
+
+# 커스텀 인터페이스 패키지 생성
+ros2 pkg create turtlebot_gui_interfaces \
+  --build-type ament_cmake \
+  --dependencies builtin_interfaces rosidl_default_generators
+```
+
+### 소스코드 가져오기
+
+이 리포지토리를 직접 클론하여 전체 패키지를 가져옵니다:
+
+```bash
+cd ~/robot_ws/src
+git clone https://github.com/Mythos1007/ROS2-Personal-Project.git
+cd ROS2-Personal-Project
+
+# 패키지들을 src 디렉토리로 이동
+mv turtlebot_gui_control turtlebot_gui_interfaces ../
+cd ..
+rm -rf ROS2-Personal-Project
+```
+
+또는 처음부터 패키지를 생성하고 싶다면:
+
+```bash
+# Python 패키지 생성
+ros2 pkg create turtlebot_gui_control \
+  --build-type ament_python \
+  --dependencies rclpy geometry_msgs nav_msgs sensor_msgs std_msgs
+
+# 커스텀 인터페이스 패키지 생성
+ros2 pkg create turtlebot_gui_interfaces \
+  --build-type ament_cmake \
+  --dependencies builtin_interfaces rosidl_default_generators
+
+# GitHub에서 소스 파일만 다운로드하여 각 패키지에 넣기
+```
+
+### setup.py 설정
+
+`setup.py`를 다음과 같이 수정:
+
+```python
+from setuptools import setup
+import os
+from glob import glob
+
+package_name = 'turtlebot_gui_control'
+
+setup(
+    name=package_name,
+    version='0.0.1',
+    packages=[package_name],
+    data_files=[
+        ('share/ament_index/resource_index/packages',
+            ['resource/' + package_name]),
+        ('share/' + package_name, ['package.xml']),
+        (os.path.join('share', package_name, 'launch'),
+            glob('launch/*.py')),
+        (os.path.join('share', package_name),
+            glob('*.sdf')),
+    ],
+    install_requires=['setuptools'],
+    zip_safe=True,
+    maintainer='Your Name',
+    maintainer_email='your.email@example.com',
+    description='TurtleBot3 maze exploration with DFS',
+    license='Apache License 2.0',
+    tests_require=['pytest'],
+    entry_points={
+        'console_scripts': [
+            'auto_control = turtlebot_gui_control.auto_control:main',
+            'manual_control = turtlebot_gui_control.manual_control:main',
+            'detect_obstacle = turtlebot_gui_control.detect_obstacle:main',
+            'turtle_pose = turtlebot_gui_control.turtle_pose:main',
+            'turtlebot_gui_qt = turtlebot_gui_control.turtlebot_gui_qt:main',
+        ],
+    },
+)
+```
+
+### package.xml 의존성 추가
+
+`package.xml`에 다음 의존성 추가:
+
+```xml
+<depend>rclpy</depend>
+<depend>geometry_msgs</depend>
+<depend>nav_msgs</depend>
+<depend>sensor_msgs</depend>
+<depend>std_msgs</depend>
+<depend>turtlebot_gui_interfaces</depend>
+
+<exec_depend>gazebo_ros_pkgs</exec_depend>
+<exec_depend>turtlebot3_gazebo</exec_depend>
+```
+
+### 커스텀 메시지/서비스 정의
+
+`~/robot_ws/src/turtlebot_gui_interfaces/msg/` 생성:
+
+```bash
+mkdir -p ~/robot_ws/src/turtlebot_gui_interfaces/msg
+mkdir -p ~/robot_ws/src/turtlebot_gui_interfaces/srv
+```
+
+#### ObstacleDistance.msg
+```
+float64 distance
+```
+
+#### GoalPose.msg
+```
+float64 x
+float64 y
+```
+
+#### StartStop.srv
+```
+bool start
+---
+bool accepted
+string message
+```
+
+### CMakeLists.txt 설정 (turtlebot_gui_interfaces)
+
+```cmake
+find_package(rosidl_default_generators REQUIRED)
+
+rosidl_generate_interfaces(${PROJECT_NAME}
+  "msg/ObstacleDistance.msg"
+  "msg/GoalPose.msg"
+  "srv/StartStop.srv"
+  DEPENDENCIES builtin_interfaces
+)
+```
+
+### PySide6 설치
+
+```bash
+pip3 install PySide6
+```
+
+### 빌드
+
+```bash
+cd ~/robot_ws
+colcon build --symlink-install
+source install/setup.bash
 ```
 
 ---
@@ -158,11 +325,13 @@ ros2 run turtlebot_gui_control turtlebot_gui_qt
 
 ### 3. 자율 탐색 시작
 
-1. GUI 로그인 (예시 참고)
+1. GUI 로그인 (기본값: ID=`admin`, PW=`1234` / 변경은 `turtlebot_gui_qt.py`의 `EXPECTED_LOGIN_ID`, `EXPECTED_LOGIN_PW` 참조)
 2. `AUTO` 버튼 클릭하여 자율 모드 전환
 3. 목표 좌표 입력 (예: `X=3.0, Y=4.0`)
 4. `NAV START` 버튼 클릭
 5. 탐색 완료 후 지도 이미지 자동 표시
+
+> **참고**: 로그인 인증 정보는 `turtlebot_gui_qt.py` 파일의 `EXPECTED_LOGIN_ID`와 `EXPECTED_LOGIN_PW` 변수에서 변경 가능합니다.
 
 ---
 
@@ -262,7 +431,7 @@ python3 make_maze.py -s 7 -m 15 -o custom_maze.sdf --seed 42
 ### 단기 개선
 
 1. **동적 장애물 회피**: 정적 미로 외 이동 장애물 대응
-2. **A 경로 계획**: DFS 대신 최단 경로 알고리즘 적용
+2. **A* 경로 계획**: DFS 대신 최단 경로 알고리즘 적용
 3. **멀티플 목표**: 여러 목표를 순차 방문하는 TSP 기반 탐색
 4. **맵 저장/로드**: 이전 탐색 결과 재사용
 
